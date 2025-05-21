@@ -1,0 +1,43 @@
+# Activate the virtual environment
+# source .venv/bin/activate
+# python -m pip install -r requirements.txt
+# echo $VIRTUAL_ENV
+
+beautifulsoup4 
+click
+# Removed resume builder library dependency - using direct HTML resume instead
+httpx
+inputimeout
+jsonschema
+jsonschema-specifications
+fake-useragent
+langchain
+langchain-anthropic
+langchain-huggingface
+langchain-community
+langchain-core
+langchain-google-genai
+langchain-ollama
+langchain-openai
+langchain-text-splitters
+# google-generativeai removed (replaced with langchain-google-genai)
+langsmith
+Levenshtein
+loguru
+lxml 
+# openai removed (using langchain-openai instead)
+pdfminer.six
+pytest
+python-dotenv
+PyYAML
+regex
+reportlab
+selenium
+webdriver-manager
+pytest
+pytest-mock
+pytest-cov
+python-dotenv
+jinja2 
+WeasyPrint
+ 

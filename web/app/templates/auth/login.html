@@ -1,0 +1,108 @@
+{% extends "layout.html" %}
+
+{% block title %}Sign In - ZENITHAPPLYAI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Sign In</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control", placeholder="Enter your email", id="email") }}
+                        {% for error in form.email.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.password.label(class="form-label") }}
+                        {{ form.password(class="form-control", placeholder="Enter your password", id="password") }}
+                        {% for error in form.password.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        {{ form.remember_me(class="form-check-input") }}
+                        {{ form.remember_me.label(class="form-check-label") }}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+
+                    <div class="api-error-message text-danger mt-3" style="display: none;"></div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <div class="mb-2">
+                    <a href="{{ url_for('auth.reset_password_request') }}">Forgot your password?</a>
+                </div>
+                <div>
+                    Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const loginForm = document.getElementById('loginForm');
+        const errorMessage = document.querySelector('.api-error-message');
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                // Try API login first to get JWT token
+                apiClient.login(email, password)
+                    .then(data => {
+                        console.log('API login successful, token stored:', apiClient.isAuthenticated());
+                        console.log('Token:', data.access_token);
+
+                        // Store refresh token if available
+                        if (data.refresh_token) {
+                            localStorage.setItem('jwt_refresh_token', data.refresh_token);
+                        }
+
+                        // Explicitly set the token again to ensure it's stored
+                        if (data.access_token) {
+                            apiClient.setToken(data.access_token);
+                            console.log('Token set in localStorage:', localStorage.getItem('jwt_token'));
+                        }
+
+                        // Redirect to dashboard
+                        window.location.href = "{{ url_for('main.dashboard') }}";
+                    })
+                    .catch(error => {
+                        console.error('API login failed:', error);
+
+                        console.error('API login error details:', error);
+
+                        // Show error message
+                        errorMessage.textContent = error.message || 'Login failed. Please check your credentials.';
+                        errorMessage.style.display = 'block';
+
+                        // If API login fails, submit the form directly
+                        // This will use the traditional server-side authentication
+                        loginForm.removeEventListener('submit', arguments.callee);
+                        loginForm.submit();
+                    });
+            });
+        }
+    });
+</script>
+{% endblock %}
